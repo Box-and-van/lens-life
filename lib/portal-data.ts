@@ -9,5 +9,5 @@ export async function scopedRows(section:Section,actor:Actor,kind:'customer'|'ph
  if(kind==='customer'&&section.table==='ll_payments'&&actor.customerId){const b=await db.from('ll_bookings').select('id').eq('customer_id',actor.customerId);q=q.in('booking_id',(b.data||[]).map(x=>x.id));}
  if(kind==='business'&&section.table==='ll_organisation_sites'&&actor.businessAccountId){const ba=await db.from('ll_business_accounts').select('organisation_id').eq('id',actor.businessAccountId).single();q=q.eq('organisation_id',ba.data!.organisation_id)}
  if(kind==='business'&&section.table==='ll_payments'&&actor.businessAccountId){const b=await db.from('ll_bookings').select('id').eq('business_account_id',actor.businessAccountId);q=q.in('booking_id',(b.data||[]).map(x=>x.id));}
- if(section.order) q=q.order(section.order,{ascending:false}); const {data,error}=await q;if(error)throw error;return (data||[]) as Record<string,unknown>[];
+ if(section.order) q=q.order(section.order,{ascending:false}); const {data,error}=await q;if(error)throw error;return (data||[]) as unknown as Record<string,unknown>[];
 }
