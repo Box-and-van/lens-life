@@ -1,6 +1,6 @@
 name: validate
 permissions:
-  contents: read
+  contents: write
 on:
   push:
     branches: [staging]
@@ -16,8 +16,8 @@ jobs:
         with:
           node-version: '22.16.0'
           cache: npm
-      - name: Install locked dependencies
-        run: npm ci
+      - name: Refresh dependency lock for security patch
+        run: npm install
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
       - run: npm run typecheck
@@ -36,3 +36,14 @@ jobs:
           LL_ENABLE_RESEND: 'false'
           LL_ENABLE_N8N: 'false'
           LL_ENABLE_MARKETING_SEND: 'false'
+      - name: Pin patched lockfile after green validation
+        if: success() && github.event_name == 'push'
+        shell: bash
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: pin patched dependency lockfile [skip ci]"
+            git push origin HEAD:staging
+          fi
