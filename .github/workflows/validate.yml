@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
-      - name: Install locked dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install --ignore-scripts; fi
@@ -34,10 +34,12 @@ jobs:
           LL_ENABLE_N8N: 'false'
           LL_ENABLE_MARKETING_SEND: 'false'
       - name: Emit generated lockfile for bootstrap
-        if: ${{ !hashFiles('package-lock.json') }}
+        if: always()
         shell: bash
         run: |
-          echo 'LOCKFILE_GZIP_BASE64_BEGIN'
-          gzip -c package-lock.json | base64 -w 0
-          echo
-          echo 'LOCKFILE_GZIP_BASE64_END'
+          if [ -f package-lock.json ]; then
+            echo 'LOCKFILE_GZIP_BASE64_BEGIN'
+            gzip -c package-lock.json | base64 -w 0
+            echo
+            echo 'LOCKFILE_GZIP_BASE64_END'
+          fi
