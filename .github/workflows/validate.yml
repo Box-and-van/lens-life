@@ -1,4 +1,6 @@
 name: validate
+permissions:
+  contents: write
 on:
   push:
     branches: [staging]
@@ -33,13 +35,14 @@ jobs:
           LL_ENABLE_RESEND: 'false'
           LL_ENABLE_N8N: 'false'
           LL_ENABLE_MARKETING_SEND: 'false'
-      - name: Emit generated lockfile for bootstrap
-        if: always()
+      - name: Pin generated lockfile after first green build
+        if: success()
         shell: bash
         run: |
-          if [ -f package-lock.json ]; then
-            echo 'LOCKFILE_GZIP_BASE64_BEGIN'
-            gzip -c package-lock.json | base64 -w 0
-            echo
-            echo 'LOCKFILE_GZIP_BASE64_END'
+          if ! git cat-file -e HEAD:package-lock.json 2>/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: pin dependency lockfile [skip ci]"
+            git push origin HEAD:staging
           fi
