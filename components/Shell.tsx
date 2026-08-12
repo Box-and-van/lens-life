@@ -1,0 +1,5 @@
+import Link from 'next/link'; import type { ReactNode } from 'react';
+export function Shell({title,subtitle,children,nav=[]}:{title:string;subtitle?:string;children:ReactNode;nav?:{href:string;label:string}[]}){return <main className="shell"><header className="top"><Link href="/photography" className="brand">LENS LIFE</Link><nav>{nav.map(n=><Link key={n.href} href={n.href}>{n.label}</Link>)}</nav></header><section className="pagehead"><p className="eyebrow">Managed photography</p><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</section>{children}<footer>Lens Life · London · Kent · Liverpool</footer></main>}
+export function Notice({children}:{children:ReactNode}){return <div className="notice">{children}</div>}
+export function Cards({children}:{children:ReactNode}){return <div className="cards">{children}</div>}
+export function Card({title,value,children}:{title:string;value?:ReactNode;children?:ReactNode}){return <article className="card"><h3>{title}</h3>{value&&<div className="metric">{value}</div>}{children}</article>}

@@ -1,0 +1,2 @@
+# Lens Life n8n
+Import the nine workflows into the staging n8n workspace. Keep them inactive until `APP_BASE_URL` and `N8N_AUTOMATION_SECRET` are configured and failure/retry behavior is tested. The application outbox is the durable source of truth; n8n must never directly mutate privileged Lens Life tables. Each workflow claims leased events, calls the authenticated application processor and acknowledges successful events.

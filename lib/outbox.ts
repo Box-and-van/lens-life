@@ -1,0 +1,2 @@
+import 'server-only'; import { adminDb } from '@/lib/supabase/admin';
+export async function emit(eventType:string,aggregateType:string,aggregateId:string|undefined,payload:Record<string,unknown>,idempotencyKey:string){const db=adminDb();const {error}=await db.from('ll_event_outbox').upsert({event_key:eventType,aggregate_type:aggregateType,aggregate_id:aggregateId,event_type:eventType,payload,idempotency_key:idempotencyKey},{onConflict:'idempotency_key',ignoreDuplicates:true});if(error) throw error;}

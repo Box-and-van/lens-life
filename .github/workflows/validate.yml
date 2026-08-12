@@ -1,0 +1,43 @@
+name: validate
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [staging, main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --ignore-scripts; fi
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run routes
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-key
+          SUPABASE_SECRET_KEY: placeholder-secret
+          APP_DEMO_MODE: 'false'
+          LL_ENABLE_PUBLIC_BOOKING: 'false'
+          LL_ENABLE_STRIPE: 'false'
+          LL_ENABLE_STRIPE_PAYOUTS: 'false'
+          LL_ENABLE_RESEND: 'false'
+          LL_ENABLE_N8N: 'false'
+          LL_ENABLE_MARKETING_SEND: 'false'
+      - name: Emit generated lockfile for bootstrap
+        if: ${{ !hashFiles('package-lock.json') }}
+        shell: bash
+        run: |
+          echo 'LOCKFILE_GZIP_BASE64_BEGIN'
+          gzip -c package-lock.json | base64 -w 0
+          echo
+          echo 'LOCKFILE_GZIP_BASE64_END'
